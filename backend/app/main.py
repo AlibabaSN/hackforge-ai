@@ -121,6 +121,27 @@ def list_k8s_manifests():
         "status": "PRODUCTION READY"
     }
 
+@app.get("/v1/models")
+@app.get("/api/v1/models")
+def list_v1_models():
+    registry = get_model_registry()
+    models = registry.get_all_models()
+    return {
+        "object": "list",
+        "data": [
+            {
+                "id": m.model_name,
+                "object": "model",
+                "created": 1700000000,
+                "owned_by": m.provider.lower(),
+                "permission": [],
+                "root": m.model_name,
+                "parent": None
+            }
+            for m in models
+        ]
+    }
+
 # ==================== HYBRID AI SERVER CONTROL CENTER ====================
 
 @app.get("/api/servers")

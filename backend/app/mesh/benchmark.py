@@ -52,3 +52,6 @@ class ModelBenchmarkAgent:
 
         results.sort(key=lambda x: x["score"], reverse=True)
         return results
+
+# Maintain alias for backward compatibility
+ModelBenchmarkHarness = ModelBenchmarkAgent

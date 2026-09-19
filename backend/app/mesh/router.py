@@ -131,6 +131,8 @@ _global_hybrid_router = HybridModelRouter()
 def get_hybrid_model_router() -> HybridModelRouter:
     return _global_hybrid_router
 
-# Maintain legacy get_model_router export for backward compatibility
+# Maintain legacy get_model_router and ModelRouter exports for backward compatibility
+ModelRouter = HybridModelRouter
+
 def get_model_router():
     return _global_hybrid_router

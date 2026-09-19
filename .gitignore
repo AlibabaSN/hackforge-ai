@@ -65,3 +65,8 @@ Thumbs.db
 postgres-data/
 redis-data/
 ollama-data/
+
+# Generated Projects & TypeScript Cache
+generated_projects/
+backend/generated_projects/
+*.tsbuildinfo
