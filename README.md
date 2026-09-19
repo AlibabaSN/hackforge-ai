@@ -70,6 +70,23 @@ docker compose up -d --build
 
 ---
 
+## 🐙 Push to Your GitHub
+
+To link and push this complete production codebase to your GitHub repository:
+
+```bash
+# Set your GitHub remote repository (replace with your repo URL)
+git remote add origin https://github.com/<your-username>/hackforge-ai.git
+
+# Verify branch is set to main
+git branch -M main
+
+# Push all source code, manifests, and documentation
+git push -u origin main
+```
+
+---
+
 ## ☸️ Kubernetes Deployment (`k8s/`)
 
 Deploy to any Kubernetes cluster (EKS, GKE, AKS, or Minikube/k3s):
