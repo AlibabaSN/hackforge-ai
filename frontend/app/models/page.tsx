@@ -6,8 +6,9 @@ import AuthModal from '../../components/AuthModal';
 import LLMSettingsModal from '../../components/LLMSettingsModal';
 import ThreeDBackgroundCanvas from '../../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../../components/ThreeDCard';
+import { getApiBase } from '@/lib/api';
 
-const API = 'http://localhost:8000/api';
+const API = getApiBase();
 
 export default function ModelsPage() {
   const [user, setUser] = useState<any>(null);

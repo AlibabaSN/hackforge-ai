@@ -4,8 +4,9 @@ import { Bot, Sliders, Cpu, Server, Award } from 'lucide-react';
 import Header from '../../../components/Header';
 import ThreeDBackgroundCanvas from '../../../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../../../components/ThreeDCard';
+import { getApiBase } from '@/lib/api';
 
-const API = 'http://localhost:8000/api';
+const API = getApiBase();
 
 export default function ModelComparePage() {
   const [comparison, setComparison] = useState<any[]>([]);

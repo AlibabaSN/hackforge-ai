@@ -4,8 +4,9 @@ import { Bot, Cpu, Server, Sliders, Shield, Lock, CheckCircle2 } from 'lucide-re
 import Header from '../../../components/Header';
 import ThreeDBackgroundCanvas from '../../../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../../../components/ThreeDCard';
+import { getApiBase } from '@/lib/api';
 
-const API = 'http://localhost:8000/api';
+const API = getApiBase();
 
 const MODES = [
   { value: 'HYBRID', title: 'Hybrid Routing (Default)', desc: 'Intelligently routes tasks to local or cloud models based on performance, cost, and privacy rules.' },

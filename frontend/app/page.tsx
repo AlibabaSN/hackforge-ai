@@ -13,8 +13,9 @@ import CodeWorkspaceExplorer from '../components/CodeWorkspaceExplorer';
 import SecurityAuditCard from '../components/SecurityAuditCard';
 import ThreeDBackgroundCanvas from '../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../components/ThreeDCard';
+import { getApiBase } from '@/lib/api';
 
-const API = 'http://localhost:8000/api';
+const API = getApiBase();
 const STAGES = [
   'Problem Analyst',
   'Problem Decomposer',
