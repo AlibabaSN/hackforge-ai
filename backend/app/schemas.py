@@ -40,6 +40,7 @@ class ProjectOut(BaseModel):
     status: str
     current_stage: str
     artifacts: dict[str, Any]
+    logs: list[Any] = []
     score: int | None
     created_at: datetime | None = None
 
@@ -51,4 +52,5 @@ class RunResponse(BaseModel):
     status: str
     current_stage: str
     artifacts: dict[str, Any]
+    logs: list[Any] = []
     score: int | None

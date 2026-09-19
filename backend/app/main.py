@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -74,6 +75,7 @@ def serialize_project(p: Project) -> dict:
         "status": p.status,
         "current_stage": p.current_stage,
         "artifacts": p.artifacts or {},
+        "logs": p.logs or [],
         "score": p.score,
         "created_at": p.created_at
     }
@@ -377,8 +379,17 @@ async def run_project(
         raise HTTPException(404, "Project not found")
     if p.status == "RUNNING":
         raise HTTPException(409, "Project already running")
-    
-    p.status = "QUEUED"
+    p.status = "RUNNING"
+    p.current_stage = "Problem Analyst"
+    p.logs = [
+        {
+            "time": datetime.utcnow().isoformat(),
+            "agent": "System Orchestrator",
+            "status": "INITIALIZED",
+            "summary": f"Starting 16-stage autonomous AI multi-agent pipeline for '{p.title}'"
+        }
+    ]
+    p.artifacts = {}
     db.commit()
     background.add_task(execute, project_id)
     return serialize_project(p)
