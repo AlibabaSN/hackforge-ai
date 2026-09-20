@@ -6,6 +6,8 @@ import {
   Terminal, Activity, Zap, CheckCircle2, ChevronRight, Eye, Code, Award
 } from 'lucide-react';
 import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
+import CommandPalette from '../components/CommandPalette';
 import AuthModal from '../components/AuthModal';
 import LLMSettingsModal from '../components/LLMSettingsModal';
 import PipelineProgress from '../components/PipelineProgress';
@@ -87,6 +89,19 @@ export default function Home() {
   const [token, setToken] = useState<string>('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLLMModal, setShowLLMModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+
+  // Command palette keyboard listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const [title, setTitle] = useState('Road Hazard Detection System');
   const [problem, setProblem] = useState('Build a system that detects road hazards using smartphone cameras and alerts drivers in real time.');
@@ -266,56 +281,11 @@ export default function Home() {
       {/* Interactive WebGL 3D Background */}
       <ThreeDBackgroundCanvas />
 
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <Bot size={22} />
-          </div>
-          <div>
-            <div className="brand-title">HackForge AI</div>
-            <div className="brand-tag">3D Autonomous Platform</div>
-          </div>
-        </div>
-
-        <nav className="nav-menu">
-          <a href="/" className="nav-item active"><Cpu size={17} /> Workspace</a>
-          <a href="/agents" className="nav-item"><Bot size={17} /> Agent Team (16)</a>
-          <a href="/servers" className="nav-item"><Server size={17} /> AI Server Control</a>
-          <a href="/settings/routing" className="nav-item"><ShieldCheck size={17} /> Privacy Routing</a>
-          <a href="/models" className="nav-item"><Sliders size={17} /> Model Mesh</a>
-        </nav>
-
-        {/* Projects List Drawer */}
-        <div style={{ marginTop: 'auto' }}>
-          <div className="muted" style={{ fontSize: 11, fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}>
-            MY PROJECTS ({projectsList.length})
-          </div>
-          <div className="projects-list-drawer">
-            {projectsList.map((p) => (
-              <div 
-                key={p.id} 
-                className={`project-item-btn ${project?.id === p.id ? 'selected' : ''}`}
-                onClick={() => setProject(p)}
-              >
-                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, fontWeight: 600 }}>
-                  {p.title}
-                </div>
-                <button 
-                  className="icon-button" 
-                  onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
-                  title="Delete project"
-                >
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </aside>
+      {/* Luxury Enterprise Sidebar */}
+      <Sidebar onOpenCommandPalette={() => setShowCommandPalette(true)} />
 
       {/* Main Content Area */}
-      <main className="main-content">
+      <div className="main-content-wrapper">
         <Header 
           user={user} 
           onOpenAuth={() => setShowAuthModal(true)} 
@@ -323,6 +293,7 @@ export default function Home() {
           onLogout={handleLogout}
           onNewProject={() => setProject(null)}
           activeProjectTitle={project?.title}
+          onOpenCommandPalette={() => setShowCommandPalette(true)}
         />
 
         <div className="dashboard-body">
@@ -626,11 +597,45 @@ export default function Home() {
                     {project.problem_statement}
                   </p>
                 </ThreeDCard>
+
+                <ThreeDCard>
+                  <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Project Repository</span>
+                    <span style={{ fontSize: 11, color: 'var(--primary)' }}>{projectsList.length} items</span>
+                  </div>
+                  <div className="projects-list-drawer">
+                    {projectsList.map((p) => (
+                      <div 
+                        key={p.id} 
+                        className={`project-item-btn ${project?.id === p.id ? 'selected' : ''}`}
+                        onClick={() => setProject(p)}
+                      >
+                        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, fontWeight: 600 }}>
+                          {p.title}
+                        </div>
+                        <button 
+                          className="icon-button" 
+                          onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
+                          title="Delete project"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </ThreeDCard>
               </div>
             </div>
           )}
         </div>
-      </main>
+      </div>
+
+      {/* Command Palette */}
+      <CommandPalette 
+        isOpen={showCommandPalette} 
+        onClose={() => setShowCommandPalette(false)} 
+        onNewProject={() => setProject(null)}
+      />
 
       {/* Auth Modal */}
       <AuthModal 

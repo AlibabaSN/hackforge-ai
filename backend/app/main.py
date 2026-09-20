@@ -6,11 +6,26 @@ from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, Request, R
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from .db import Base, engine, SessionLocal
-from .models import Project, User, ModelConfig, ProviderRecord, RoutingAuditRecord
+from .models import (
+    Project, User, ModelConfig, ProviderRecord, RoutingAuditRecord,
+    SecurityEvent, SecurityPolicy, SecretVaultItem, WorkflowRecord, AutomationRecord
+)
+from .database_service import (
+    get_database_overview, get_all_tables_metadata, get_table_details,
+    execute_safe_query, get_schema_graph
+)
+from .security_service import (
+    get_security_overview, analyze_prompt_security, seed_security_defaults_if_empty
+)
+from .workflow_service import (
+    get_all_workflows, get_all_automations, seed_workflows_and_automations_if_empty
+)
+from pydantic import BaseModel
 from .schemas import (
     ProjectCreate, ProjectOut, RunResponse,
     UserRegister, UserLogin, UserOut, TokenResponse, LLMConfigUpdate
 )
+
 from .auth import (
     hash_password, verify_password, create_access_token,
     get_current_user, require_current_user
@@ -466,3 +481,153 @@ def logs(project_id: int, db: Session = Depends(get_db)):
     if not p:
         raise HTTPException(404, "Project not found")
     return p.logs or []
+
+# =========================================================================
+# DATABASE COMMAND CENTER API (REAL TELEMETRY, INSPECTOR, SAFE CONSOLE)
+# =========================================================================
+
+class QueryRequest(BaseModel):
+    query: str
+
+@app.get("/api/database/overview")
+def database_overview():
+    return get_database_overview()
+
+@app.get("/api/database/tables")
+def database_tables():
+    return get_all_tables_metadata()
+
+@app.get("/api/database/tables/{table_name}")
+def database_table_data(table_name: str, limit: int = 50):
+    return get_table_details(table_name, limit)
+
+@app.post("/api/database/query")
+def database_query(req: QueryRequest):
+    return execute_safe_query(req.query)
+
+@app.get("/api/database/schema")
+def database_schema():
+    return get_schema_graph()
+
+# =========================================================================
+# SECURITY OPERATIONS CENTER API (SOC, ZERO-TRUST, FIREWALL, SECRET VAULT)
+# =========================================================================
+
+class PromptAnalysisRequest(BaseModel):
+    prompt: str
+
+class VaultItemCreate(BaseModel):
+    name: str
+    key_type: str
+    masked_value: str
+    service_provider: str
+
+@app.get("/api/security/overview")
+def security_overview(db: Session = Depends(get_db)):
+    return get_security_overview(db)
+
+@app.get("/api/security/events")
+def security_events(limit: int = 50, db: Session = Depends(get_db)):
+    seed_security_defaults_if_empty(db)
+    events = db.query(SecurityEvent).order_by(SecurityEvent.id.desc()).limit(limit).all()
+    return [
+        {
+            "id": e.id,
+            "event_type": e.event_type,
+            "severity": e.severity,
+            "source_ip": e.source_ip,
+            "action_attempted": e.action_attempted,
+            "status": e.status,
+            "details": e.details,
+            "created_at": e.created_at.isoformat()
+        } for e in events
+    ]
+
+@app.get("/api/security/policies")
+def security_policies(db: Session = Depends(get_db)):
+    seed_security_defaults_if_empty(db)
+    policies = db.query(SecurityPolicy).all()
+    return [
+        {
+            "id": p.id,
+            "name": p.name,
+            "category": p.category,
+            "is_active": p.is_active,
+            "severity": p.severity,
+            "description": p.description,
+            "rule_definition": p.rule_definition,
+            "created_at": p.created_at.isoformat()
+        } for p in policies
+    ]
+
+@app.post("/api/security/policies/{policy_id}/toggle")
+def toggle_security_policy(policy_id: int, db: Session = Depends(get_db)):
+    policy = db.get(SecurityPolicy, policy_id)
+    if not policy:
+        raise HTTPException(404, "Policy not found")
+    policy.is_active = not policy.is_active
+    db.commit()
+    return {"id": policy.id, "name": policy.name, "is_active": policy.is_active}
+
+@app.get("/api/security/vault")
+def security_vault(db: Session = Depends(get_db)):
+    seed_security_defaults_if_empty(db)
+    items = db.query(SecretVaultItem).all()
+    return [
+        {
+            "id": item.id,
+            "name": item.name,
+            "key_type": item.key_type,
+            "masked_value": item.masked_value,
+            "service_provider": item.service_provider,
+            "is_valid": item.is_valid,
+            "last_verified": item.last_verified.isoformat(),
+            "created_at": item.created_at.isoformat()
+        } for item in items
+    ]
+
+@app.post("/api/security/vault")
+def create_vault_item(req: VaultItemCreate, db: Session = Depends(get_db)):
+    item = SecretVaultItem(
+        name=req.name,
+        key_type=req.key_type,
+        masked_value=req.masked_value,
+        service_provider=req.service_provider,
+        is_valid=True
+    )
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return {
+        "id": item.id,
+        "name": item.name,
+        "masked_value": item.masked_value,
+        "is_valid": item.is_valid
+    }
+
+@app.post("/api/security/analyze-prompt")
+def analyze_prompt(req: PromptAnalysisRequest, request: Request):
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    return analyze_prompt_security(req.prompt, client_ip)
+
+# =========================================================================
+# WORKFLOWS & AUTOMATIONS API
+# =========================================================================
+
+@app.get("/api/workflows")
+def list_workflows(db: Session = Depends(get_db)):
+    return get_all_workflows(db)
+
+@app.get("/api/automations")
+def list_automations(db: Session = Depends(get_db)):
+    return get_all_automations(db)
+
+@app.post("/api/automations/{automation_id}/toggle")
+def toggle_automation(automation_id: int, db: Session = Depends(get_db)):
+    auto = db.get(AutomationRecord, automation_id)
+    if not auto:
+        raise HTTPException(404, "Automation not found")
+    auto.is_enabled = not auto.is_enabled
+    db.commit()
+    return {"id": auto.id, "name": auto.name, "is_enabled": auto.is_enabled}
+
