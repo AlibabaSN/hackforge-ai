@@ -1,5 +1,5 @@
 'use client';
-import { User, LogOut, Plus, FolderGit2, Cpu } from 'lucide-react';
+import { User, LogOut, Plus, FolderGit2, Cpu, Github } from 'lucide-react';
 
 interface HeaderProps {
   user: any;
@@ -30,6 +30,18 @@ export default function Header({
       </div>
 
       <div className="header-right">
+        <a 
+          href="https://github.com/AlibabaSN/hackforge-ai" 
+          target="_blank" 
+          rel="noreferrer" 
+          className="btn btn-secondary btn-sm"
+          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+          title="View Source on GitHub (AlibabaSN/hackforge-ai)"
+        >
+          <Github size={15} className="text-cyan-400" />
+          <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 600 }}>AlibabaSN</span>
+        </a>
+
         <button className="btn btn-secondary btn-sm" onClick={onOpenLLMSettings} title="LLM Provider Settings">
           <Cpu size={15} /> Model Settings
         </button>

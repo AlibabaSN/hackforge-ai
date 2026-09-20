@@ -14,6 +14,7 @@ import CodeWorkspaceExplorer from '../components/CodeWorkspaceExplorer';
 import SecurityAuditCard from '../components/SecurityAuditCard';
 import ThreeDBackgroundCanvas from '../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../components/ThreeDCard';
+import ArtifactDetailViewer from '../components/ArtifactDetailViewer';
 import { getApiBase } from '@/lib/api';
 
 const API = getApiBase();
@@ -581,41 +582,24 @@ export default function Home() {
                   ) : tab === 'Security Audit' ? (
                     <SecurityAuditCard audit={artifacts.security_audit} />
                   ) : (
-                    <>
-                      <div className="card-title">
-                        <span>Artifact Details — {tab}</span>
-                      </div>
-                      <pre className="artifact-box">
-                        {tab === 'Overview' 
-                          ? formatJSON({
-                              id: project.id,
-                              title: project.title,
-                              status: project.status,
-                              current_stage: project.current_stage,
-                              score: project.score,
-                              sandbox: artifacts.sandbox_execution,
-                              security: artifacts.security_audit,
-                              artifacts_generated: Object.keys(artifacts).length,
-                              created_at: project.created_at
-                            })
-                          : tab === 'Logs' 
-                          ? formatJSON(project.logs)
-                          : formatJSON(
-                              artifacts[tab.toLowerCase().replace(/ /g, '_')] || 
-                              artifacts[tab === 'Data Engineering' ? 'data_engineering_agent' : 
-                                        tab === 'AI/ML Modeling' ? 'ai___ml_engineering_agent' : 
-                                        tab === 'Solutions' ? 'solution_generator' : 
-                                        tab === 'Judge' ? 'hackathon_judge' : 
-                                        tab === 'Architecture' ? 'architecture_designer' : 
-                                        tab === 'Problem' ? 'problem_analyst' : 
-                                        tab === 'Research' ? 'research_agent' : ''] || 
-                              artifacts[tab === 'AI/ML Modeling' ? 'ai_/_ml_engineering_agent' : ''] ||
-                              artifacts[tab.toLowerCase().replace(/ /g, '_').replace(/&/g, 'and').replace(/\//g, '_')] ||
-                              { message: 'Stage in progress or pending...', stage: tab, current_orchestrator_stage: project.current_stage }
-                            )
-                        }
-                      </pre>
-                    </>
+                    <ArtifactDetailViewer 
+                      tab={tab} 
+                      artifact={
+                        tab === 'Overview' ? null :
+                        tab === 'Logs' ? project.logs :
+                        (artifacts[tab.toLowerCase().replace(/ /g, '_')] || 
+                         artifacts[tab === 'Data Engineering' ? 'data_engineering_agent' : 
+                                   tab === 'AI/ML Modeling' ? 'ai___ml_engineering_agent' : 
+                                   tab === 'Solutions' ? 'solution_generator' : 
+                                   tab === 'Judge' ? 'hackathon_judge' : 
+                                   tab === 'Architecture' ? 'architecture_designer' : 
+                                   tab === 'Problem' ? 'problem_analyst' : 
+                                   tab === 'Research' ? 'research_agent' : ''] || 
+                         artifacts[tab === 'AI/ML Modeling' ? 'ai_/_ml_engineering_agent' : ''] ||
+                         artifacts[tab.toLowerCase().replace(/ /g, '_').replace(/&/g, 'and').replace(/\//g, '_')])
+                      } 
+                      project={project} 
+                    />
                   )}
                 </ThreeDCard>
               </div>
