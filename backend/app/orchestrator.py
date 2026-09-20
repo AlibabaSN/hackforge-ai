@@ -29,11 +29,15 @@ async def run_pipeline(db: Session, project: Project):
     # 1. Execute all 16 Agent Stages sequentially
     for agent in AGENTS:
         project.current_stage = agent.name
+        model_name = getattr(agent, "model_name", "OpenSource-LLM")
+        provider_name = getattr(agent, "provider_label", "Local Open-Weight Engine")
         logs.append({
             "time": datetime.utcnow().isoformat(),
             "agent": agent.name,
+            "model": model_name,
+            "provider": provider_name,
             "status": "RUNNING",
-            "summary": f"Executing {agent.name} with hybrid model routing..."
+            "summary": f"Executing {agent.name} with [{model_name}] ({provider_name})..."
         })
         project.logs = list(logs)
         db.commit()
@@ -67,6 +71,8 @@ async def run_pipeline(db: Session, project: Project):
             logs.append({
                 "time": datetime.utcnow().isoformat(),
                 "agent": agent.name,
+                "model": getattr(result, "model_name", model_name),
+                "provider": getattr(result, "provider", provider_name),
                 "status": "COMPLETED",
                 "summary": result.summary
             })
@@ -79,6 +85,8 @@ async def run_pipeline(db: Session, project: Project):
             logs.append({
                 "time": datetime.utcnow().isoformat(),
                 "agent": agent.name,
+                "model": model_name,
+                "provider": provider_name,
                 "status": "FAILED",
                 "error": str(exc)
             })
@@ -87,14 +95,24 @@ async def run_pipeline(db: Session, project: Project):
             db.commit()
             raise
 
-    # Finalize Project
+    # Finalize Project & Store Open-Source Models Metadata
     project.status = "READY"
     project.current_stage = "COMPLETE"
+    artifacts["models_metadata"] = {
+        agent.name: {
+            "model": getattr(agent, "model_name", "OpenSource-LLM"),
+            "provider": getattr(agent, "provider_label", "Local Open-Weight"),
+            "type": "OPEN_SOURCE"
+        }
+        for agent in AGENTS
+    }
     judge_art = artifacts.get("hackathon_judge", {})
     project.score = judge_art.get("overall_score", 90)
     logs.append({
         "time": datetime.utcnow().isoformat(),
         "agent": "Hackathon Judge",
+        "model": "DeepSeek-R1-Reasoning-Judge",
+        "provider": "DeepSeek-R1 Local Reasoner",
         "status": "FINAL_VERDICT",
         "summary": f"Evaluation Complete! Verdict: WINNER — Final Score: {project.score}/100"
     })

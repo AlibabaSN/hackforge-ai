@@ -534,6 +534,21 @@ export default function Home() {
                           }}>
                             {log.agent}
                           </span>
+                          {log.model && (
+                            <span style={{
+                              padding: '1px 6px',
+                              borderRadius: 4,
+                              fontSize: 9,
+                              fontWeight: 700,
+                              fontFamily: 'monospace',
+                              flexShrink: 0,
+                              background: 'rgba(139, 92, 246, 0.15)',
+                              color: '#c084fc',
+                              border: '1px solid rgba(139, 92, 246, 0.35)'
+                            }}>
+                              {log.model}
+                            </span>
+                          )}
                           <span style={{ color: 'var(--text-main)', wordBreak: 'break-word' }}>
                             {log.summary || log.status}
                           </span>
