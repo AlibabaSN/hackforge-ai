@@ -49,9 +49,10 @@ def main():
 
     print("\n[3/4] Starting Next.js Web Dashboard (http://localhost:3000)...")
     npm_cmd = "npm.cmd" if sys.platform == "win32" else "npm"
-    frontend_cmd = [npm_cmd, "run", "dev"]
+    built = os.path.exists(os.path.join(frontend_dir, ".next"))
+    frontend_cmd = [npm_cmd, "run", "start" if built else "dev"]
     frontend_proc = subprocess.Popen(frontend_cmd, cwd=frontend_dir)
-    print("      ✓ Next.js Frontend dev server process launched.")
+    print(f"      ✓ Next.js Frontend server process launched ({'production start' if built else 'dev mode'}).")
 
     print("\n[4/4] Opening HackForge AI Dashboard in Browser...")
     time.sleep(3)
