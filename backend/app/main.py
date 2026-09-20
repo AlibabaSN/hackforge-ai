@@ -2,6 +2,7 @@ import os
 import logging
 import httpx
 from datetime import datetime
+from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -19,6 +20,11 @@ from .security_service import (
 )
 from .workflow_service import (
     get_all_workflows, get_all_automations, seed_workflows_and_automations_if_empty
+)
+from .platform_service import (
+    get_platform_analytics, get_platform_executions, get_platform_deployments,
+    approve_pipeline_deployment, get_platform_knowledge, get_platform_tools,
+    get_platform_notifications
 )
 from pydantic import BaseModel
 from .schemas import (
@@ -630,4 +636,43 @@ def toggle_automation(automation_id: int, db: Session = Depends(get_db)):
     auto.is_enabled = not auto.is_enabled
     db.commit()
     return {"id": auto.id, "name": auto.name, "is_enabled": auto.is_enabled}
+
+# =========================================================================
+# PLATFORM APEX API (ANALYTICS, EXECUTIONS, DEPLOYMENTS, KNOWLEDGE, TOOLS)
+# =========================================================================
+
+class DeploymentApprovalRequest(BaseModel):
+    approved: bool
+
+@app.get("/api/analytics")
+def get_analytics(db: Session = Depends(get_db)):
+    return get_platform_analytics(db)
+
+@app.get("/api/executions")
+def get_executions(status: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
+    return get_platform_executions(db, status_filter=status, limit=limit)
+
+@app.get("/api/deployments")
+def get_deployments():
+    return get_platform_deployments()
+
+@app.post("/api/deployments/{dep_id}/approve")
+def approve_deployment(dep_id: str, req: DeploymentApprovalRequest):
+    res = approve_pipeline_deployment(dep_id, req.approved)
+    if not res.get("success"):
+        raise HTTPException(404, res.get("error", "Failed to approve deployment"))
+    return res
+
+@app.get("/api/knowledge")
+def get_knowledge():
+    return get_platform_knowledge()
+
+@app.get("/api/tools")
+def get_tools():
+    return get_platform_tools()
+
+@app.get("/api/notifications")
+def get_notifications(db: Session = Depends(get_db)):
+    return get_platform_notifications(db)
+
 

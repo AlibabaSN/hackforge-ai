@@ -1,11 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Activity, Terminal, Bot, Compass, Sparkles, Database, Shield, 
   Cpu, Sliders, Server, Lock, ChevronLeft, ChevronRight, Search, 
-  Code2, CheckCircle2, AlertCircle
+  Code2, FolderGit2, BookOpen, Layers, Rocket, FileText, BarChart3,
+  Wrench, Settings as SettingsIcon, Microscope
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -16,35 +17,71 @@ export default function Sidebar({ onOpenCommandPalette }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-  const navItems = [
+  // Keyboard shortcut: Ctrl+B or Cmd+B to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        setCollapsed(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const navGroups = [
     {
-      group: 'COMMAND & CONTROL',
+      group: 'WORKSPACE',
       items: [
         { label: 'Command Center', href: '/dashboard', icon: Activity, badge: 'Live' },
-        { label: 'Autonomous Factory', href: '/', icon: Terminal },
-        { label: '16 Domain Agents', href: '/agents', icon: Bot, badge: '16' }
+        { label: 'Projects', href: '/projects', icon: FolderGit2 },
+        { label: 'AI Workspace', href: '/', icon: Terminal }
       ]
     },
     {
-      group: 'AUTOMATION & PIPELINES',
+      group: 'BUILD',
       items: [
+        { label: '16 Domain Agents', href: '/agents', icon: Bot, badge: '16' },
         { label: 'Workflows', href: '/workflows', icon: Compass },
         { label: 'Automations', href: '/automations', icon: Sparkles, badge: 'Cron' }
       ]
     },
     {
-      group: 'SYSTEMS & SECURITY',
+      group: 'KNOWLEDGE',
       items: [
-        { label: 'Database Center', href: '/database', icon: Database, badge: 'SQL' },
-        { label: 'Security SOC', href: '/security', icon: Shield, badge: 'Zero-Trust' }
+        { label: 'Knowledge Bases', href: '/knowledge', icon: BookOpen, badge: 'RAG' },
+        { label: 'Deep Research', href: '/research', icon: Microscope }
       ]
     },
     {
-      group: 'AI MESH & INFRASTRUCTURE',
+      group: 'INFRASTRUCTURE',
       items: [
-        { label: 'Model Registry', href: '/models', icon: Cpu },
+        { label: 'Model Mesh', href: '/models', icon: Cpu },
         { label: 'Model Benchmarks', href: '/models/compare', icon: Sliders },
         { label: 'Inference Clusters', href: '/servers', icon: Server },
+        { label: 'Tools & MCP', href: '/tools', icon: Wrench, badge: '5 MCP' }
+      ]
+    },
+    {
+      group: 'ENGINEERING',
+      items: [
+        { label: 'Execution Traces', href: '/executions', icon: Layers, badge: 'Real-time' },
+        { label: 'Deployment CI/CD', href: '/deployments', icon: Rocket }
+      ]
+    },
+    {
+      group: 'CONTROL',
+      items: [
+        { label: 'Security SOC', href: '/security', icon: Shield, badge: 'Zero-Trust' },
+        { label: 'Database Center', href: '/database', icon: Database, badge: 'SQL' },
+        { label: 'Platform Analytics', href: '/analytics', icon: BarChart3 },
+        { label: 'Audit Trail', href: '/audit', icon: FileText }
+      ]
+    },
+    {
+      group: 'SYSTEM',
+      items: [
+        { label: 'Operating Settings', href: '/settings', icon: SettingsIcon },
         { label: 'Data Locality', href: '/settings/routing', icon: Lock }
       ]
     }
@@ -68,7 +105,7 @@ export default function Sidebar({ onOpenCommandPalette }: SidebarProps) {
         <button 
           className="sidebar-collapse-toggle" 
           onClick={() => setCollapsed(!collapsed)}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar (Ctrl+B)' : 'Collapse sidebar (Ctrl+B)'}
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
@@ -93,7 +130,7 @@ export default function Sidebar({ onOpenCommandPalette }: SidebarProps) {
 
       {/* Navigation Groups */}
       <div className="sidebar-nav-scroll">
-        {navItems.map((group, gIdx) => (
+        {navGroups.map((group, gIdx) => (
           <div key={gIdx} className="sidebar-nav-group">
             {!collapsed && <div className="sidebar-group-label">{group.group}</div>}
             <div className="sidebar-group-links">
@@ -108,7 +145,7 @@ export default function Sidebar({ onOpenCommandPalette }: SidebarProps) {
                     title={collapsed ? item.label : undefined}
                   >
                     <div className="sidebar-nav-icon-wrap">
-                      <Icon size={17} />
+                      <Icon size={16} />
                     </div>
                     {!collapsed && (
                       <span className="sidebar-nav-label">{item.label}</span>
@@ -133,16 +170,16 @@ export default function Sidebar({ onOpenCommandPalette }: SidebarProps) {
             <span className="cluster-title">RUNTIME ENGINES</span>
             <span className="status-indicator-live">
               <span className="live-dot"></span>
-              READY
+              OPTIMAL
             </span>
           </div>
           <div className="cluster-engine-list">
             <div className="cluster-engine-item">
-              <span className="engine-name">Ollama Local Engine</span>
+              <span className="engine-name">Ollama Local Mesh</span>
               <span className="engine-val text-emerald-400">ONLINE</span>
             </div>
             <div className="cluster-engine-item">
-              <span className="engine-name">SQLAlchemy Data Store</span>
+              <span className="engine-name">SQL Database Core</span>
               <span className="engine-val text-cyan-400">ACTIVE</span>
             </div>
             <div className="cluster-engine-item">

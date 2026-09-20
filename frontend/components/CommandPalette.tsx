@@ -114,6 +114,72 @@ export default function CommandPalette({ isOpen, onClose, onNewProject }: Comman
       shortcut: 'G M'
     },
     {
+      id: 'nav-deployments',
+      category: 'Navigation',
+      label: 'Continuous Delivery & Deployments',
+      sublabel: 'Multi-environment pipelines with human-in-the-loop approvals',
+      icon: Terminal,
+      action: () => { router.push('/deployments'); onClose(); },
+      badge: 'CI/CD',
+      shortcut: 'G D P'
+    },
+    {
+      id: 'nav-executions',
+      category: 'Navigation',
+      label: 'Execution Traces & Debugger',
+      sublabel: 'Real-time telemetry and execution logs across 16 domain agents',
+      icon: Activity,
+      action: () => { router.push('/executions'); onClose(); },
+      badge: 'Traces',
+      shortcut: 'G E'
+    },
+    {
+      id: 'nav-analytics',
+      category: 'Navigation',
+      label: 'Platform Telemetry & Analytics',
+      sublabel: 'Token consumption, local cost savings, and model latency P95s',
+      icon: Activity,
+      action: () => { router.push('/analytics'); onClose(); },
+      shortcut: 'G L'
+    },
+    {
+      id: 'nav-knowledge',
+      category: 'Navigation',
+      label: 'Vector Knowledge Bases & RAG',
+      sublabel: 'Architectural standards, security signatures, and semantic RAG',
+      icon: Database,
+      action: () => { router.push('/knowledge'); onClose(); },
+      badge: 'RAG',
+      shortcut: 'G K'
+    },
+    {
+      id: 'nav-tools',
+      category: 'Navigation',
+      label: 'Tools & Model Context Protocol (MCP)',
+      sublabel: 'Docker sandboxes, AST scanners, and protocol bridges',
+      icon: Cpu,
+      action: () => { router.push('/tools'); onClose(); },
+      badge: '5 MCP',
+      shortcut: 'G T'
+    },
+    {
+      id: 'nav-projects',
+      category: 'Navigation',
+      label: 'Enterprise Engineering Projects',
+      sublabel: 'Inspect all synthesized codebases and evaluation scores',
+      icon: Terminal,
+      action: () => { router.push('/projects'); onClose(); },
+      shortcut: 'G P'
+    },
+    {
+      id: 'nav-audit',
+      category: 'Navigation',
+      label: 'Cryptographic Audit Trail',
+      sublabel: 'Tamper-evident operational ledger and governance log',
+      icon: Shield,
+      action: () => { router.push('/audit'); onClose(); }
+    },
+    {
       id: 'nav-compare',
       category: 'Navigation',
       label: 'Model Comparison Matrix',

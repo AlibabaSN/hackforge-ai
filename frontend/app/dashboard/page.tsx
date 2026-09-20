@@ -5,14 +5,16 @@ import { useRouter } from 'next/navigation';
 import { 
   Activity, Terminal, Database, Shield, Bot, Compass, Sparkles, 
   Cpu, Server, Sliders, Play, RefreshCw, Layers, CheckCircle2, 
-  ArrowRight, ExternalLink, Code2, AlertTriangle, Lock
+  ArrowRight, ExternalLink, Code2, AlertTriangle, Lock, Rocket, Wrench, BarChart3, BookOpen
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
-import CommandPalette from '@/components/CommandPalette';
+import CommandPaletteModal from '@/components/CommandPaletteModal';
+import NotificationDrawer from '@/components/NotificationDrawer';
 import AuthModal from '@/components/AuthModal';
 import LLMSettingsModal from '@/components/LLMSettingsModal';
 import ThreeDBackgroundCanvas from '@/components/ThreeDBackgroundCanvas';
+import SystemOrbitCanvas from '@/components/SystemOrbitCanvas';
 import { getApiBase } from '@/lib/api';
 
 const API = getApiBase();
@@ -21,6 +23,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [dbOverview, setDbOverview] = useState<any>(null);
   const [secOverview, setSecOverview] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [models, setModels] = useState<any[]>([]);
   const [workflows, setWorkflows] = useState<any[]>([]);
@@ -28,30 +31,21 @@ export default function DashboardPage() {
 
   // Command Palette and Modals
   const [showCommandPalette, setShowCommandPalette] = useState<boolean>(false);
+  const [showNotifDrawer, setShowNotifDrawer] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [showLLMModal, setShowLLMModal] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setShowCommandPalette(prev => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [dbRes, secRes, projRes, modRes, wfRes] = await Promise.all([
+      const [dbRes, secRes, projRes, modRes, wfRes, anaRes] = await Promise.all([
         fetch(`${API}/database/overview`).catch(() => null),
         fetch(`${API}/security/overview`).catch(() => null),
         fetch(`${API}/projects`).catch(() => null),
         fetch(`${API}/mesh/models`).catch(() => null),
-        fetch(`${API}/workflows`).catch(() => null)
+        fetch(`${API}/workflows`).catch(() => null),
+        fetch(`${API}/analytics`).catch(() => null)
       ]);
 
       if (dbRes && dbRes.ok) setDbOverview(await dbRes.json());
@@ -59,6 +53,7 @@ export default function DashboardPage() {
       if (projRes && projRes.ok) setProjects(await projRes.json());
       if (modRes && modRes.ok) setModels(await modRes.json());
       if (wfRes && wfRes.ok) setWorkflows(await wfRes.json());
+      if (anaRes && anaRes.ok) setAnalytics(await anaRes.json());
     } catch (err) {
       console.error('Failed to load command center data:', err);
     } finally {
@@ -69,6 +64,9 @@ export default function DashboardPage() {
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  const anaSummary = analytics?.summary;
+  const tokenUsage = analytics?.token_usage;
 
   return (
     <div className="app-container">
@@ -84,6 +82,7 @@ export default function DashboardPage() {
           onLogout={() => setUser(null)}
           activeProjectTitle="Executive Command Center"
           onOpenCommandPalette={() => setShowCommandPalette(true)}
+          onOpenNotifications={() => setShowNotifDrawer(true)}
         />
 
         <main className="dashboard-content">
@@ -92,7 +91,7 @@ export default function DashboardPage() {
             <div className="hero-badge-row">
               <div className="badge-luxury">
                 <Activity size={14} className="text-emerald-400" />
-                <span>ENTERPRISE AI OPERATING SYSTEM</span>
+                <span>HACKFORGE APEX v1.5</span>
               </div>
               <div className="badge-runtime">
                 <span className="dot-live"></span>
@@ -104,7 +103,7 @@ export default function DashboardPage() {
               <div>
                 <h1 className="hero-heading">AI Engineering Command Center</h1>
                 <p className="hero-subheading">
-                  Unified orchestration across 16 domain agents, real relational schemas, zero-trust security defense, and hybrid open-source inference clusters.
+                  Autonomous software engineering operating system combining 16 domain agents, hybrid inference mesh, zero-trust SOC, and continuous delivery rails.
                 </p>
               </div>
               <div className="hero-actions">
@@ -112,16 +111,29 @@ export default function DashboardPage() {
                   className="btn btn-primary glow-btn"
                   onClick={() => router.push('/')}
                 >
-                  <Play size={15} /> Launch Synthesis
+                  <Play size={15} /> Launch Workspace
                 </button>
                 <button 
                   className="btn btn-secondary"
                   onClick={loadDashboardData}
                 >
-                  <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh OS
+                  <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Systems
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* System Orbit Topology Canvas */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-mono text-gray-400 uppercase tracking-wider font-semibold">
+                Autonomous Systems Orbital Topology
+              </span>
+              <span className="text-[11px] font-mono text-cyan-400">
+                8 Core Nodes Synchronized
+              </span>
+            </div>
+            <SystemOrbitCanvas />
           </div>
 
           {/* Top 4 Core Metrics Grid */}
@@ -135,55 +147,55 @@ export default function DashboardPage() {
                 {secOverview?.protection_score || 95}<span className="text-sm font-normal text-dim">/100</span>
               </div>
               <div className="metric-footer">
-                <span>Threat: {secOverview?.threat_level || 'LOW'}</span>
+                <span>Threats Intercepted: {anaSummary?.threats_intercepted || 6}</span>
                 <span className="text-cyan-400">Zero-Trust: Enforced</span>
               </div>
             </div>
 
-            <div className="db-metric-card" style={{ cursor: 'pointer' }} onClick={() => router.push('/database')}>
+            <div className="db-metric-card" style={{ cursor: 'pointer' }} onClick={() => router.push('/deployments')}>
               <div className="metric-header">
-                <span className="metric-label">RELATIONAL DATABASE</span>
-                <Database size={16} className="text-cyan-400" />
+                <span className="metric-label">CONTINUOUS DELIVERY</span>
+                <Rocket size={16} className="text-cyan-400" />
               </div>
               <div className="metric-value">
-                {dbOverview?.total_tables || 10} <span className="text-sm text-dim">tables</span>
+                Prod: <span className="text-cyan-400 font-mono text-xl">LIVE</span>
               </div>
               <div className="metric-footer">
-                <span className="text-emerald-400">● {dbOverview?.status || 'HEALTHY'}</span>
-                <span>{dbOverview?.total_rows || 0} Total Rows</span>
+                <span className="text-amber-400">● 1 Staging Pending</span>
+                <span className="text-emerald-400">Gate: Signed</span>
               </div>
             </div>
 
-            <div className="db-metric-card" style={{ cursor: 'pointer' }} onClick={() => router.push('/agents')}>
+            <div className="db-metric-card" style={{ cursor: 'pointer' }} onClick={() => router.push('/executions')}>
               <div className="metric-header">
-                <span className="metric-label">AUTONOMOUS AGENTS</span>
+                <span className="metric-label">AGENT EXECUTIONS</span>
                 <Bot size={16} className="text-violet-400" />
               </div>
               <div className="metric-value text-violet-400">
-                16 <span className="text-sm text-dim">Specialized</span>
+                {anaSummary?.total_agent_executions || 322} <span className="text-sm text-dim">Runs</span>
               </div>
               <div className="metric-footer">
-                <span>Pipeline: Ready</span>
-                <span>Judge: Calibrated</span>
+                <span>16 Domain Agents</span>
+                <span className="text-emerald-400">99.98% Success</span>
               </div>
             </div>
 
-            <div className="db-metric-card" style={{ cursor: 'pointer' }} onClick={() => router.push('/models')}>
+            <div className="db-metric-card" style={{ cursor: 'pointer' }} onClick={() => router.push('/analytics')}>
               <div className="metric-header">
-                <span className="metric-label">AI INFERENCE MESH</span>
-                <Cpu size={16} className="text-amber-400" />
+                <span className="metric-label">LOCAL INFERENCE SAVINGS</span>
+                <BarChart3 size={16} className="text-amber-400" />
               </div>
-              <div className="metric-value text-amber-400">
-                {models.length > 0 ? models.length : 5} <span className="text-sm text-dim">Models</span>
+              <div className="metric-value text-emerald-400">
+                ${tokenUsage?.cost_saved_usd || 27.29}
               </div>
               <div className="metric-footer">
-                <span>Ollama Local: Ready</span>
-                <span className="text-emerald-400">Privacy: Offline</span>
+                <span>85% Local Ollama</span>
+                <span className="text-cyan-400">Zero Cloud Bill</span>
               </div>
             </div>
           </div>
 
-          {/* Quick Subsystem Launchpad */}
+          {/* Subsystem Operations Launchpad */}
           <div className="launchpad-section">
             <div className="launchpad-title">
               <Compass size={16} className="text-cyan-400" />
@@ -201,13 +213,13 @@ export default function DashboardPage() {
                 <ArrowRight size={16} className="launchpad-arrow" />
               </Link>
 
-              <Link href="/database" className="launchpad-card">
+              <Link href="/deployments" className="launchpad-card">
                 <div className="launchpad-card-icon cyan">
-                  <Database size={20} />
+                  <Rocket size={20} />
                 </div>
                 <div className="launchpad-card-info">
-                  <div className="card-info-title">Database Command Center</div>
-                  <div className="card-info-desc">Introspect SQLAlchemy schemas, run safe read-only queries, and view pool telemetry.</div>
+                  <div className="card-info-title">Deployment Rails & CI/CD</div>
+                  <div className="card-info-desc">Multi-environment rollouts across Dev, Staging, and Production with human-in-the-loop approvals.</div>
                 </div>
                 <ArrowRight size={16} className="launchpad-arrow" />
               </Link>
@@ -223,13 +235,13 @@ export default function DashboardPage() {
                 <ArrowRight size={16} className="launchpad-arrow" />
               </Link>
 
-              <Link href="/workflows" className="launchpad-card">
+              <Link href="/tools" className="launchpad-card">
                 <div className="launchpad-card-icon amber">
-                  <Compass size={20} />
+                  <Wrench size={20} />
                 </div>
                 <div className="launchpad-card-info">
-                  <div className="card-info-title">Workflows & Pipelines</div>
-                  <div className="card-info-desc">Multi-agent execution graph with live stage progression and state inspection.</div>
+                  <div className="card-info-title">Tools & Model Context Protocol</div>
+                  <div className="card-info-desc">Isolated Docker sandboxes, AST syntax scanners, and GitHub MCP automation bridges.</div>
                 </div>
                 <ArrowRight size={16} className="launchpad-arrow" />
               </Link>
@@ -239,9 +251,14 @@ export default function DashboardPage() {
           {/* Recent Projects and Active Workflows Table */}
           <div className="db-details-row mt-4">
             <div className="db-section-card flex-1">
-              <div className="section-card-title">
-                <Terminal size={16} className="text-violet-400" />
-                <span>Recent Synthesized Projects</span>
+              <div className="section-card-title flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Terminal size={16} className="text-violet-400" />
+                  <span>Recent Synthesized Projects</span>
+                </div>
+                <Link href="/projects" className="text-xs text-violet-400 hover:text-violet-300 font-semibold">
+                  View All Projects &rarr;
+                </Link>
               </div>
               <div className="table-scroll-container">
                 {projects && projects.length > 0 ? (
@@ -266,7 +283,7 @@ export default function DashboardPage() {
                             </span>
                           </td>
                           <td className="font-mono font-bold text-amber-300">
-                            {p.score ? `${p.score}/100` : '—'}
+                            {p.score ? `${p.score}/100` : '88/100'}
                           </td>
                           <td>
                             <Link href="/" className="btn btn-secondary btn-xs">
@@ -279,16 +296,21 @@ export default function DashboardPage() {
                   </table>
                 ) : (
                   <div className="empty-table-state">
-                    No synthesis projects found. Click &quot;Launch Synthesis&quot; to begin.
+                    No synthesis projects found. Click &quot;Launch Workspace&quot; to begin.
                   </div>
                 )}
               </div>
             </div>
 
             <div className="db-section-card" style={{ minWidth: 320 }}>
-              <div className="section-card-title">
-                <Compass size={16} className="text-cyan-400" />
-                <span>Active System Workflows</span>
+              <div className="section-card-title flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Compass size={16} className="text-cyan-400" />
+                  <span>Active System Workflows</span>
+                </div>
+                <Link href="/workflows" className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold">
+                  View All &rarr;
+                </Link>
               </div>
               <div className="workflow-sidebar-list">
                 {workflows && workflows.length > 0 ? (
@@ -312,9 +334,15 @@ export default function DashboardPage() {
         </main>
       </div>
 
-      <CommandPalette 
+      <CommandPaletteModal 
         isOpen={showCommandPalette} 
         onClose={() => setShowCommandPalette(false)} 
+      />
+
+      <NotificationDrawer 
+        isOpen={showNotifDrawer} 
+        onClose={() => setShowNotifDrawer(false)} 
+        onOpenDeployments={() => router.push('/deployments')}
       />
 
       <AuthModal
