@@ -93,6 +93,22 @@ class OllamaProvider(AIProvider):
                 metadata={"fallback": True, "note": "Ollama server offline"}
             )
 
+        # Dynamically map to an installed open-source model if target model is not present
+        available_models = health.get("models", [])
+        if available_models:
+            # First check direct or fuzzy match
+            base_target = target_model.split(':')[0].lower().replace("-", "").replace(".", "")
+            matches = [
+                m for m in available_models
+                if base_target in m.lower().replace("-", "").replace(".", "") or m.lower() in target_model.lower()
+            ]
+            if matches:
+                target_model = matches[0]
+            elif target_model not in available_models:
+                # Prefer coding model if present, otherwise use the first installed model (e.g. gemma3:4b)
+                coder_models = [m for m in available_models if "code" in m.lower()]
+                target_model = coder_models[0] if coder_models else available_models[0]
+
         url = f"{self.base_url.rstrip('/')}/api/chat"
         messages = []
         if system_prompt:
@@ -105,7 +121,7 @@ class OllamaProvider(AIProvider):
             "stream": False
         }
 
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=45.0) as client:
             res = await client.post(url, json=payload)
             res.raise_for_status()
             data = res.json()
@@ -127,14 +143,19 @@ class OllamaProvider(AIProvider):
 
     async def structured_output(self, prompt: str, schema: Type[T], model: Optional[str] = None, system_prompt: Optional[str] = None) -> T:
         schema_json = json.dumps(schema.model_json_schema(), indent=2)
-        aug_sys = f"{system_prompt or 'You are an expert AI software engineer.'}\n\nRespond ONLY in valid JSON matching:\n{schema_json}"
+        aug_sys = f"{system_prompt or 'You are an expert AI software engineer.'}\n\nRespond ONLY in valid JSON matching this schema:\n{schema_json}"
         res = await self.generate(prompt, model=model, system_prompt=aug_sys)
         
         text = res.content.strip()
-        if text.startswith("```json"): text = text[7:]
-        if text.startswith("```"): text = text[3:]
-        if text.endswith("```"): text = text[:-3]
-        text = text.strip()
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0].strip()
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0].strip()
         
+        if "{" in text and "}" in text:
+            first_brace = text.find("{")
+            last_brace = text.rfind("}")
+            text = text[first_brace:last_brace + 1]
+            
         parsed = json.loads(text)
         return schema.model_validate(parsed)

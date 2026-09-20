@@ -1,4 +1,6 @@
 import os
+import logging
+import httpx
 from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -255,6 +257,41 @@ async def run_model_debate(body: dict):
     problem = body.get("problem", "Design a resilient microservice architecture")
     debate_agent = ModelDebateAgent()
     return await debate_agent.run_debate(problem)
+
+@app.get("/api/models/installed")
+async def list_installed_local_models():
+    """Returns all open-source models currently downloaded and ready for local offline inference."""
+    reg = get_provider_registry()
+    ollama = reg.get_provider("Ollama Local Engine")
+    if ollama:
+        health = await ollama.health_check()
+        return {
+            "engine": "Ollama Local Engine",
+            "status": health.get("status"),
+            "models": health.get("models", []),
+            "models_count": health.get("models_count", 0),
+            "base_url": getattr(ollama, "base_url", "http://localhost:11434")
+        }
+    return {"engine": "Ollama", "status": "UNAVAILABLE", "models": [], "models_count": 0}
+
+@app.post("/api/models/pull")
+async def pull_model_endpoint(body: dict, background_tasks: BackgroundTasks):
+    """Triggers background pull of an open-source model (e.g. qwen2.5-coder:1.5b, deepseek-r1:1.5b)."""
+    model_name = body.get("model", "qwen2.5-coder:1.5b")
+    reg = get_provider_registry()
+    ollama = reg.get_provider("Ollama Local Engine")
+    if not ollama:
+        raise HTTPException(500, "Ollama provider not registered")
+
+    async def _do_pull(name: str):
+        try:
+            async with httpx.AsyncClient(timeout=600.0) as client:
+                await client.post(f"{ollama.base_url.rstrip('/')}/api/pull", json={"name": name, "stream": False})
+        except Exception as e:
+            logging.getLogger("hackforge.main").error(f"Failed to pull model {name}: {e}")
+
+    background_tasks.add_task(_do_pull, model_name)
+    return {"status": "PULLING", "model": model_name, "message": f"Installation of '{model_name}' initiated in background."}
 
 # LLM Configuration Settings
 @app.get("/api/settings/llm")
