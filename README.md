@@ -267,6 +267,6 @@ tests/test_platform.py .....                                             [100%]
 
 ## 🐙 GitHub Repository
 
-* **Repository**: [https://github.com/AlibabaSN/hackforge-ai](https://github.com/AlibabaSN/hackforge-ai)
-* **Author / Architect**: **AlibabaSN**
+* **Repository**: [https://github.com/hackforge-ai/hackforge-ai](https://github.com/hackforge-ai/hackforge-ai)
+* **Maintained by**: **HackForge AI Core Engineering Team**
 * **License**: [MIT License](LICENSE)

@@ -102,14 +102,14 @@ export default function Header({
         )}
 
         <a 
-          href="https://github.com/AlibabaSN/hackforge-ai" 
+          href="https://github.com/hackforge-ai/hackforge-ai" 
           target="_blank" 
           rel="noreferrer" 
           className="btn btn-secondary btn-sm github-header-btn"
-          title="View Source on GitHub (AlibabaSN/hackforge-ai)"
+          title="View Source on GitHub"
         >
           <Github size={15} className="text-cyan-400" />
-          <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 600 }}>AlibabaSN</span>
+          <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 600 }}>GitHub</span>
         </a>
 
         <button className="btn btn-secondary btn-sm" onClick={onOpenLLMSettings} title="Model Configuration & Routing">

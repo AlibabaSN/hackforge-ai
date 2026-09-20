@@ -17,7 +17,7 @@ export default function AuditPage() {
     {
       id: 'aud-9812',
       timestamp: '2026-09-20T07:42:00Z',
-      actor: 'AlibabaSN (Architect)',
+      actor: 'Lead System Architect',
       action: 'DEPLOYMENT_TRIGGER',
       category: 'DEPLOYMENT',
       details: 'Dispatched commit 386f762 to Staging node k8s-staging-node-02',
@@ -37,7 +37,7 @@ export default function AuditPage() {
     {
       id: 'aud-9810',
       timestamp: '2026-09-20T07:15:00Z',
-      actor: 'AlibabaSN (Architect)',
+      actor: 'Lead System Architect',
       action: 'PRODUCTION_AUTHORIZE',
       category: 'DEPLOYMENT',
       details: 'Signed production release v1.4.2 to k8s-us-east-cluster-01',

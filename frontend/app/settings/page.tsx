@@ -101,7 +101,7 @@ export default function SettingsPage() {
                   <input 
                     type="text" 
                     readOnly 
-                    value="https://github.com/AlibabaSN/hackforge-ai.git" 
+                    value="https://github.com/hackforge-ai/hackforge-ai.git" 
                     className="bg-[#090B11] border border-white/10 rounded-xl px-4 py-2 text-xs text-gray-200 font-mono w-full"
                   />
                 </div>

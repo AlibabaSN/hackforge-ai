@@ -44,7 +44,7 @@ export default function DeploymentsPage() {
       const res = await fetch(`http://127.0.0.1:8000/api/deployments/${depId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ approver: 'Lead System Architect (AlibabaSN)' })
+        body: JSON.stringify({ approver: 'Lead System Architect' })
       });
       if (res.ok) {
         setToastMessage(`Deployment ${depId} successfully authorized and dispatched to cluster.`);

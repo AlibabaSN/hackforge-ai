@@ -220,11 +220,11 @@ export default function CommandPalette({ isOpen, onClose, onNewProject }: Comman
     {
       id: 'act-github',
       category: 'Actions',
-      label: 'Open GitHub Repository (AlibabaSN/hackforge-ai)',
+      label: 'Open GitHub Repository',
       sublabel: 'View open-source production source code and commits',
       icon: ExternalLink,
       action: () => { 
-        window.open('https://github.com/AlibabaSN/hackforge-ai', '_blank');
+        window.open('https://github.com/hackforge-ai/hackforge-ai', '_blank');
         onClose();
       }
     }

@@ -32,13 +32,13 @@ export default function LandingPage() {
 
         <div className="flex items-center gap-3">
           <a 
-            href="https://github.com/AlibabaSN/hackforge-ai"
+            href="https://github.com/hackforge-ai/hackforge-ai"
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono text-cyan-400 hover:bg-white/5 transition-all"
           >
             <Github size={14} />
-            <span>AlibabaSN</span>
+            <span>GitHub</span>
           </a>
           <Link 
             href="/" 
@@ -184,12 +184,12 @@ export default function LandingPage() {
             <Link href="/executions" className="hover:text-white">Executions</Link>
             <Link href="/analytics" className="hover:text-white">Analytics</Link>
             <Link href="/database" className="hover:text-white">Database</Link>
-            <a href="https://github.com/AlibabaSN/hackforge-ai" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">
+            <a href="https://github.com/hackforge-ai/hackforge-ai" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">
               GitHub Repo
             </a>
           </div>
           <div className="font-mono text-[11px]">
-            Engineered by <span className="text-white font-bold">AlibabaSN</span>
+            Engineered by <span className="text-white font-bold">HackForge AI Core Team</span>
           </div>
         </div>
       </footer>
