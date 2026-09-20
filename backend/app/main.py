@@ -117,12 +117,14 @@ def health():
     }
 
 @app.get("/api/health/liveness")
+@app.get("/health")
 def k8s_liveness():
-    return {"status": "alive", "timestamp": os.getenv("PORT", "8000")}
+    return {"status": "alive", "timestamp": os.getenv("PORT", "8000"), "service": "hackforge-api"}
 
 @app.get("/api/health/readiness")
+@app.get("/ready")
 def k8s_readiness():
-    return {"status": "ready", "database": "connected", "redis": "connected"}
+    return {"status": "ready", "database": "connected", "redis": "connected", "mesh": "ready"}
 
 @app.get("/api/company/agents")
 async def list_company_agents():
@@ -674,5 +676,81 @@ def get_tools():
 @app.get("/api/notifications")
 def get_notifications(db: Session = Depends(get_db)):
     return get_platform_notifications(db)
+
+# ==================== MULTI-MODEL AGENT MESH ENDPOINTS ====================
+from .mesh.agent_mesh import AgentMeshRegistry
+from .mesh.agent_orchestrator import get_agent_orchestrator
+from .mesh.model_adapter import get_model_adapter
+
+class ProblemSelectRequest(BaseModel):
+    problem_statement: str
+
+class DebateRequest(BaseModel):
+    topic: str
+    context: Optional[dict] = None
+
+@app.get("/api/mesh/agents")
+def list_mesh_agents():
+    """List all registered specialized agents across all 20 domain families."""
+    agents = AgentMeshRegistry.list_all()
+    return {
+        "total_agents": len(agents),
+        "agents": [
+            {
+                "id": a.id,
+                "name": a.name,
+                "family": a.family.value,
+                "purpose": a.purpose,
+                "capabilities": a.capabilities,
+                "tools": a.tools,
+                "primary_model": a.model_policy.primary_model,
+                "fallback_model": a.model_policy.fallback_model,
+                "status": a.status
+            }
+            for a in agents
+        ]
+    }
+
+@app.get("/api/mesh/matrix")
+def get_model_agent_matrix():
+    """Returns the live capability matrix mapping agents to open-source models."""
+    orchestrator = get_agent_orchestrator()
+    return orchestrator.get_model_agent_matrix()
+
+@app.get("/api/mesh/teams")
+def get_team_templates():
+    """Returns pre-configured agent swarm blueprints."""
+    orchestrator = get_agent_orchestrator()
+    return {"teams": orchestrator.get_team_templates()}
+
+@app.post("/api/mesh/orchestrate/select")
+def select_agents_for_problem(req: ProblemSelectRequest):
+    """Dynamically determines the specialized agent swarm for a given problem."""
+    orchestrator = get_agent_orchestrator()
+    return orchestrator.select_agents(req.problem_statement)
+
+@app.post("/api/mesh/debate")
+async def run_multi_agent_debate(req: DebateRequest):
+    """Executes a multi-agent debate and consensus protocol."""
+    orchestrator = get_agent_orchestrator()
+    return await orchestrator.run_debate(req.topic, req.context)
+
+@app.get("/api/mesh/runtimes")
+async def get_inference_runtimes():
+    """Checks the live health of inference runtimes (Ollama, vLLM, llama.cpp)."""
+    ollama_adapter = get_model_adapter("OLLAMA")
+    vllm_adapter = get_model_adapter("VLLM")
+    
+    ollama_health = await ollama_adapter.health_check()
+    vllm_health = await vllm_adapter.health_check()
+    
+    return {
+        "runtimes": [
+            ollama_health,
+            vllm_health,
+            {"status": "STANDBY", "runtime": "llama.cpp", "available_models": []}
+        ]
+    }
+
 
 
