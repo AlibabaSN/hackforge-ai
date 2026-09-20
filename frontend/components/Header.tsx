@@ -4,6 +4,7 @@ import {
   User, LogOut, Plus, FolderGit2, Cpu, Github, Search, Bell, CheckCircle2, ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
+import { getApiBase } from '@/lib/api';
 
 interface HeaderProps {
   user: any;
@@ -32,7 +33,7 @@ export default function Header({
   useEffect(() => {
     const checkAlerts = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/notifications');
+        const res = await fetch(`${getApiBase()}/notifications`);
         if (res.ok) {
           const data = await res.json();
           const count = (data.notifications || []).filter((n: any) => !n.read).length;

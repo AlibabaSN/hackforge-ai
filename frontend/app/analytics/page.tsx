@@ -8,6 +8,9 @@ import {
   BarChart3, TrendingUp, Cpu, Coins, ShieldCheck, Activity, 
   Layers, Clock, RefreshCw, Zap, Server
 } from 'lucide-react';
+import { getApiBase } from '@/lib/api';
+
+const API = getApiBase();
 
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<any | null>(null);
@@ -18,7 +21,7 @@ export default function AnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://127.0.0.1:8000/api/analytics');
+      const res = await fetch(`${API}/analytics`);
       if (res.ok) {
         const data = await res.json();
         setAnalytics(data);

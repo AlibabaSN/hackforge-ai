@@ -103,7 +103,16 @@ def serialize_project(p: Project) -> dict:
         "created_at": p.created_at
     }
 
-from .company_agents import COMPANY_AGENTS
+@app.get("/")
+def api_root():
+    return {
+        "name": "HackForge AI — Autonomous Engineering Operating System",
+        "version": "1.5.0",
+        "status": "ONLINE",
+        "docs": "/docs",
+        "health": "/health",
+        "ready": "/ready"
+    }
 
 @app.get("/api/health")
 def health():
@@ -751,6 +760,12 @@ async def get_inference_runtimes():
             {"status": "STANDBY", "runtime": "llama.cpp", "available_models": []}
         ]
     }
+
+@app.get("/api/mesh/models")
+async def get_mesh_models():
+    """Returns all models registered across open-source inference mesh."""
+    return await list_models()
+
 
 
 

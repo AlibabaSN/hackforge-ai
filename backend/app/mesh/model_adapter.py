@@ -86,7 +86,7 @@ class OllamaModelAdapter(ModelAdapter):
         prompt: str,
         system_prompt: Optional[str] = None,
         temperature: float = 0.7,
-        max_tokens: int = 2048,
+        max_tokens: int = 512,
         stop: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         url = f"{self.base_url}/api/generate"
@@ -103,7 +103,7 @@ class OllamaModelAdapter(ModelAdapter):
         if stop:
             payload["options"]["stop"] = stop
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=15.0) as client:
             try:
                 resp = await client.post(url, json=payload)
                 resp.raise_for_status()
@@ -117,7 +117,7 @@ class OllamaModelAdapter(ModelAdapter):
                     "eval_count": data.get("eval_count", 0)
                 }
             except Exception as e:
-                logger.error(f"Ollama generation failed for model {model_name}: {e}")
+                logger.warning(f"Ollama generation failed for model {model_name}: {repr(e)}")
                 raise
 
     async def stream(

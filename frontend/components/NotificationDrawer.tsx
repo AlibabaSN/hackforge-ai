@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Bell, ShieldAlert, CheckCircle2, Rocket, AlertTriangle, X, Check, ArrowRight, Activity
 } from 'lucide-react';
+import { getApiBase } from '@/lib/api';
 
 interface NotificationDrawerProps {
   isOpen: boolean;
@@ -20,9 +21,10 @@ export default function NotificationDrawer({ isOpen, onClose, onOpenDeployments 
   const fetchData = async () => {
     try {
       setLoading(true);
+      const api = getApiBase();
       const [notifsRes, depsRes] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/notifications').catch(() => null),
-        fetch('http://127.0.0.1:8000/api/deployments').catch(() => null)
+        fetch(`${api}/notifications`).catch(() => null),
+        fetch(`${api}/deployments`).catch(() => null)
       ]);
 
       if (notifsRes && notifsRes.ok) {
@@ -33,8 +35,8 @@ export default function NotificationDrawer({ isOpen, onClose, onOpenDeployments 
         const data = await depsRes.json();
         setDeployments(data.deployments || []);
       }
-    } catch (e) {
-      console.error('Failed to load notifications or deployments', e);
+    } catch (err) {
+      console.error('Failed to load notifications', err);
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ export default function NotificationDrawer({ isOpen, onClose, onOpenDeployments 
   const handleApprove = async (depId: string) => {
     try {
       setApprovingId(depId);
-      const res = await fetch(`http://127.0.0.1:8000/api/deployments/${depId}/approve`, {
+      const res = await fetch(`${getApiBase()}/deployments/${depId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ approver: 'Lead System Architect' })

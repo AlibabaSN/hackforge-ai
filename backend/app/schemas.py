@@ -29,8 +29,8 @@ class LLMConfigUpdate(BaseModel):
     model_name: Optional[str] = None
 
 class ProjectCreate(BaseModel):
-    title: str = Field(min_length=2, max_length=200)
-    problem_statement: str = Field(min_length=10)
+    title: str = Field(default="Untitled Project", min_length=1, max_length=200)
+    problem_statement: str = Field(min_length=2)
 
 class ProjectOut(BaseModel):
     id: int

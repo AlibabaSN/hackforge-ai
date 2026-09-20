@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { 
   FolderGit2, Search, Plus, CheckCircle2, Clock, Bot, ArrowRight, RefreshCw, Terminal, Layers
 } from 'lucide-react';
+import { getApiBase } from '@/lib/api';
+
+const API = getApiBase();
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -19,7 +22,7 @@ export default function ProjectsPage() {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://127.0.0.1:8000/api/projects');
+      const res = await fetch(`${API}/projects`);
       if (res.ok) {
         const data = await res.json();
         setProjects(data || []);

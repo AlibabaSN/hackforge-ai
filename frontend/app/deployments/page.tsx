@@ -8,6 +8,9 @@ import {
   Rocket, CheckCircle2, Clock, AlertTriangle, ShieldCheck, Server, GitCommit, 
   RefreshCw, Check, ArrowRight, Activity, Terminal
 } from 'lucide-react';
+import { getApiBase } from '@/lib/api';
+
+const API = getApiBase();
 
 export default function DeploymentsPage() {
   const [deployments, setDeployments] = useState<any[]>([]);
@@ -20,7 +23,7 @@ export default function DeploymentsPage() {
   const fetchDeployments = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://127.0.0.1:8000/api/deployments');
+      const res = await fetch(`${API}/deployments`);
       if (res.ok) {
         const data = await res.json();
         setDeployments(data.deployments || []);
@@ -41,7 +44,7 @@ export default function DeploymentsPage() {
   const handleApprove = async (depId: string) => {
     try {
       setApprovingId(depId);
-      const res = await fetch(`http://127.0.0.1:8000/api/deployments/${depId}/approve`, {
+      const res = await fetch(`${API}/deployments/${depId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ approver: 'Lead System Architect' })

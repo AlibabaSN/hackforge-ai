@@ -17,6 +17,7 @@ import SecurityAuditCard from '../components/SecurityAuditCard';
 import ThreeDBackgroundCanvas from '../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../components/ThreeDCard';
 import ArtifactDetailViewer from '../components/ArtifactDetailViewer';
+import NotificationDrawer from '../components/NotificationDrawer';
 import { getApiBase } from '@/lib/api';
 
 const API = getApiBase();
@@ -90,6 +91,7 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLLMModal, setShowLLMModal] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
   // Command palette keyboard listener
   useEffect(() => {
@@ -294,6 +296,7 @@ export default function Home() {
           onNewProject={() => setProject(null)}
           activeProjectTitle={project?.title}
           onOpenCommandPalette={() => setShowCommandPalette(true)}
+          onOpenNotifications={() => setShowNotifDrawer(true)}
         />
 
         <div className="dashboard-body">
@@ -650,6 +653,12 @@ export default function Home() {
         isOpen={showLLMModal} 
         onClose={() => setShowLLMModal(false)} 
         apiBase={API}
+      />
+
+      {/* Notification Drawer */}
+      <NotificationDrawer 
+        isOpen={showNotifDrawer} 
+        onClose={() => setShowNotifDrawer(false)} 
       />
     </div>
   );

@@ -8,6 +8,9 @@ import {
   Layers, Search, Filter, RefreshCw, CheckCircle2, Clock, AlertCircle, 
   Terminal, ArrowUpRight, ChevronRight, X, Bot, Shield, Code2
 } from 'lucide-react';
+import { getApiBase } from '@/lib/api';
+
+const API = getApiBase();
 
 export default function ExecutionsPage() {
   const [executions, setExecutions] = useState<any[]>([]);
@@ -22,8 +25,8 @@ export default function ExecutionsPage() {
     try {
       setLoading(true);
       const url = statusFilter === 'ALL' 
-        ? 'http://127.0.0.1:8000/api/executions'
-        : `http://127.0.0.1:8000/api/executions?status=${statusFilter}`;
+        ? `${API}/executions`
+        : `${API}/executions?status=${statusFilter}`;
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();

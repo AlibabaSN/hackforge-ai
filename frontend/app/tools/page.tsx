@@ -7,6 +7,9 @@ import CommandPaletteModal from '../../components/CommandPaletteModal';
 import { 
   Wrench, Terminal, Shield, RefreshCw, CheckCircle2, Globe, Github, Database, Play, ExternalLink
 } from 'lucide-react';
+import { getApiBase } from '@/lib/api';
+
+const API = getApiBase();
 
 export default function ToolsPage() {
   const [tools, setTools] = useState<any[]>([]);
@@ -19,7 +22,7 @@ export default function ToolsPage() {
   const fetchTools = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://127.0.0.1:8000/api/tools');
+      const res = await fetch(`${API}/tools`);
       if (res.ok) {
         const data = await res.json();
         setTools(data.tools || []);
