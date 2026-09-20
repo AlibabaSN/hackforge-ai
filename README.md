@@ -13,6 +13,32 @@
 
 ---
 
+## 📸 Platform Demonstration & Visual Tour
+
+<div align="center">
+  <h3>⚡ Executive AI Engineering Command Center & System Orbit</h3>
+  <img src="docs/assets/command_center_preview.jpg" alt="HackForge AI Command Center" width="95%" style="border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);" />
+  <p><em>Real-time System Orbit topology canvas, active operations telemetry, database health, and hybrid inference mesh indicators.</em></p>
+</div>
+
+<br />
+
+<div align="center">
+  <h3>🛠️ Autonomous Software Factory & Live Agent Swarm Execution</h3>
+  <img src="docs/assets/autonomous_workspace_preview.jpg" alt="Autonomous Workspace & Multi-Agent Pipeline" width="95%" style="border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);" />
+  <p><em>16-stage autonomous code synthesis workspace, streaming log terminals, multi-file code diffing, and live web preview sandbox.</em></p>
+</div>
+
+<br />
+
+<div align="center">
+  <h3>🛡️ Zero-Trust Security Operations Center (SOC) & Defense Radar</h3>
+  <img src="docs/assets/soc_security_preview.jpg" alt="Zero-Trust SOC Security Center" width="95%" style="border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);" />
+  <p><em>Real-time prompt injection firewall, AST security analyzer, secret vault masking, and human-in-the-loop deployment approvals.</em></p>
+</div>
+
+---
+
 ## 🌟 Core Product Pillars & Architecture
 
 ```text
