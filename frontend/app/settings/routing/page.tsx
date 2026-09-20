@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Bot, Cpu, Server, Sliders, Shield, Lock, CheckCircle2 } from 'lucide-react';
 import Header from '../../../components/Header';
+import Sidebar from '../../../components/Sidebar';
+import CommandPalette from '../../../components/CommandPalette';
 import ThreeDBackgroundCanvas from '../../../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../../../components/ThreeDCard';
 import { getApiBase } from '@/lib/api';
@@ -20,12 +22,22 @@ const MODES = [
 export default function RoutingSettingsPage() {
   const [settings, setSettings] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
 
   useEffect(() => {
     fetch(`${API}/routing/settings`)
       .then((res) => res.json())
       .then((data) => setSettings(data))
       .catch(console.error);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   async function updateMode(mode: string) {
@@ -51,48 +63,32 @@ export default function RoutingSettingsPage() {
       {/* 3D Canvas Background */}
       <ThreeDBackgroundCanvas />
 
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <Bot size={22} />
-          </div>
-          <div>
-            <div className="brand-title">HackForge AI</div>
-            <div className="brand-tag">Hybrid AI Infrastructure</div>
-          </div>
-        </div>
-
-        <nav className="nav-menu">
-          <a href="/" className="nav-item"><Cpu size={17} /> Workspace</a>
-          <a href="/agents" className="nav-item"><Bot size={17} /> Agent Team (16)</a>
-          <a href="/servers" className="nav-item"><Server size={17} /> AI Server Control Center</a>
-          <a href="/settings/routing" className="nav-item active"><Shield size={17} /> Routing & Privacy</a>
-          <a href="/models" className="nav-item"><Sliders size={17} /> Model Mesh</a>
-        </nav>
-      </aside>
+      {/* Luxury Enterprise Sidebar */}
+      <Sidebar onOpenCommandPalette={() => setShowCommandPalette(true)} />
 
       {/* Main Content */}
-      <main className="main-content">
+      <div className="main-content-wrapper">
         <Header 
           user={null} 
           onOpenAuth={() => {}} 
           onOpenLLMSettings={() => {}}
           onLogout={() => {}}
           onNewProject={() => window.location.href = '/'}
-          activeProjectTitle="Routing & Privacy Settings"
+          activeProjectTitle="Data Locality & Routing Rules"
+          onOpenCommandPalette={() => setShowCommandPalette(true)}
         />
 
-        <div className="dashboard-body">
-          <div className="hero-banner">
-            <div>
-              <div className="hero-tag">
-                <Lock size={14} /> SECURITY & PRIVACY POLICY ENGINE
+        <div className="dashboard-content">
+          <div className="database-hero-banner">
+            <div className="db-banner-left">
+              <div className="db-badge">
+                <Lock size={16} className="text-emerald-400" />
+                <span>SECURITY & PRIVACY POLICY ENGINE</span>
               </div>
-              <h1>Model Routing & Data Locality Settings</h1>
-              <div className="muted">
+              <h1 className="db-hero-title">Model Routing & Data Locality Settings</h1>
+              <p className="db-hero-subtitle">
                 Control routing boundaries, data privacy rules, and model selection preferences across local and cloud layers.
-              </div>
+              </p>
             </div>
           </div>
 
@@ -118,7 +114,12 @@ export default function RoutingSettingsPage() {
             })}
           </div>
         </div>
-      </main>
+      </div>
+
+      <CommandPalette 
+        isOpen={showCommandPalette} 
+        onClose={() => setShowCommandPalette(false)} 
+      />
     </div>
   );
 }

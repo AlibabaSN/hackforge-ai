@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Bot, Cpu, Activity, Zap, Server, Sliders, Play, Download, CheckCircle2, RefreshCw } from 'lucide-react';
 import Header from '../../components/Header';
+import Sidebar from '../../components/Sidebar';
+import CommandPalette from '../../components/CommandPalette';
 import AuthModal from '../../components/AuthModal';
 import LLMSettingsModal from '../../components/LLMSettingsModal';
 import ThreeDBackgroundCanvas from '../../components/ThreeDBackgroundCanvas';
@@ -14,6 +16,18 @@ export default function ModelsPage() {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLLMModal, setShowLLMModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const [models, setModels] = useState<any[]>([]);
   const [benchmarks, setBenchmarks] = useState<any[]>([]);
@@ -116,29 +130,11 @@ export default function ModelsPage() {
       {/* 3D Background */}
       <ThreeDBackgroundCanvas />
 
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <Bot size={22} />
-          </div>
-          <div>
-            <div className="brand-title">HackForge AI</div>
-            <div className="brand-tag">Model Mesh Dashboard</div>
-          </div>
-        </div>
-
-        <nav className="nav-menu">
-          <a href="/" className="nav-item"><Cpu size={17} /> Workspace</a>
-          <a href="/agents" className="nav-item"><Bot size={17} /> Agent Team (16)</a>
-          <a href="/servers" className="nav-item"><Server size={17} /> AI Server Control</a>
-          <a href="/models" className="nav-item active"><Sliders size={17} /> Model Control Center</a>
-          <a href="/models/compare" className="nav-item"><Activity size={17} /> Model Comparison</a>
-        </nav>
-      </aside>
+      {/* Luxury Enterprise Sidebar */}
+      <Sidebar onOpenCommandPalette={() => setShowCommandPalette(true)} />
 
       {/* Main Content */}
-      <main className="main-content">
+      <div className="main-content-wrapper">
         <Header 
           user={user} 
           onOpenAuth={() => setShowAuthModal(true)} 
@@ -146,6 +142,7 @@ export default function ModelsPage() {
           onLogout={() => setUser(null)}
           onNewProject={() => window.location.href = '/'}
           activeProjectTitle="Model Control Center"
+          onOpenCommandPalette={() => setShowCommandPalette(true)}
         />
 
         <div className="dashboard-body">
@@ -338,7 +335,12 @@ export default function ModelsPage() {
             </ThreeDCard>
           )}
         </div>
-      </main>
+      </div>
+
+      <CommandPalette 
+        isOpen={showCommandPalette} 
+        onClose={() => setShowCommandPalette(false)} 
+      />
 
       {/* Modals */}
       <AuthModal 

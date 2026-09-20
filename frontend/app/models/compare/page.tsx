@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Bot, Sliders, Cpu, Server, Award } from 'lucide-react';
 import Header from '../../../components/Header';
+import Sidebar from '../../../components/Sidebar';
+import CommandPalette from '../../../components/CommandPalette';
 import ThreeDBackgroundCanvas from '../../../components/ThreeDBackgroundCanvas';
 import ThreeDCard from '../../../components/ThreeDCard';
 import { getApiBase } from '@/lib/api';
@@ -10,12 +12,22 @@ const API = getApiBase();
 
 export default function ModelComparePage() {
   const [comparison, setComparison] = useState<any[]>([]);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
 
   useEffect(() => {
     fetch(`${API}/models/compare`)
       .then((res) => res.json())
       .then((data) => setComparison(data))
       .catch(console.error);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return (
@@ -23,48 +35,32 @@ export default function ModelComparePage() {
       {/* 3D Background */}
       <ThreeDBackgroundCanvas />
 
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <Bot size={22} />
-          </div>
-          <div>
-            <div className="brand-title">HackForge AI</div>
-            <div className="brand-tag">Model Mesh Dashboard</div>
-          </div>
-        </div>
-
-        <nav className="nav-menu">
-          <a href="/" className="nav-item"><Cpu size={17} /> Workspace</a>
-          <a href="/agents" className="nav-item"><Bot size={17} /> Agent Team (16)</a>
-          <a href="/servers" className="nav-item"><Server size={17} /> AI Server Control</a>
-          <a href="/models" className="nav-item"><Sliders size={17} /> Model Control Center</a>
-          <a href="/models/compare" className="nav-item active"><Award size={17} /> Model Comparison</a>
-        </nav>
-      </aside>
+      {/* Luxury Enterprise Sidebar */}
+      <Sidebar onOpenCommandPalette={() => setShowCommandPalette(true)} />
 
       {/* Main Content */}
-      <main className="main-content">
+      <div className="main-content-wrapper">
         <Header 
           user={null} 
           onOpenAuth={() => {}} 
           onOpenLLMSettings={() => {}}
           onLogout={() => {}}
           onNewProject={() => window.location.href = '/'}
-          activeProjectTitle="Model Comparison"
+          activeProjectTitle="Model Comparison Matrix"
+          onOpenCommandPalette={() => setShowCommandPalette(true)}
         />
 
-        <div className="dashboard-body">
-          <div className="hero-banner">
-            <div>
-              <div className="hero-tag">
-                <Award size={14} /> MULTI-MODEL PERFORMANCE MATRIX
+        <div className="dashboard-content">
+          <div className="database-hero-banner">
+            <div className="db-banner-left">
+              <div className="db-badge">
+                <Award size={16} className="text-amber-400" />
+                <span>MULTI-MODEL PERFORMANCE MATRIX</span>
               </div>
-              <h1>Model Comparison Matrix</h1>
-              <div className="muted">
+              <h1 className="db-hero-title">Model Comparison Matrix</h1>
+              <p className="db-hero-subtitle">
                 Compare open-weight models across Reasoning, Coding, Latency, Cost Efficiency, and Tool Calling capability.
-              </div>
+              </p>
             </div>
           </div>
 
@@ -95,7 +91,12 @@ export default function ModelComparePage() {
             </table>
           </ThreeDCard>
         </div>
-      </main>
+      </div>
+
+      <CommandPalette 
+        isOpen={showCommandPalette} 
+        onClose={() => setShowCommandPalette(false)} 
+      />
     </div>
   );
 }

@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Bot, Cpu, Server, Sliders, Shield, Code, Database, Brain, Sparkles, CheckCircle2, Award } from 'lucide-react';
 import Header from '../../components/Header';
+import Sidebar from '../../components/Sidebar';
+import CommandPalette from '../../components/CommandPalette';
 import AuthModal from '../../components/AuthModal';
 import LLMSettingsModal from '../../components/LLMSettingsModal';
 import ThreeDBackgroundCanvas from '../../components/ThreeDBackgroundCanvas';
@@ -33,54 +35,50 @@ export default function AgentsPage() {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLLMModal, setShowLLMModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="app-container">
       {/* 3D Particle Mesh Background */}
       <ThreeDBackgroundCanvas />
 
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <Bot size={22} />
-          </div>
-          <div>
-            <div className="brand-title">HackForge AI</div>
-            <div className="brand-tag">Specialized Agent Team</div>
-          </div>
-        </div>
-
-        <nav className="nav-menu">
-          <a href="/" className="nav-item"><Cpu size={17} /> Workspace</a>
-          <a href="/agents" className="nav-item active"><Bot size={17} /> Agent Team (16)</a>
-          <a href="/servers" className="nav-item"><Server size={17} /> AI Server Control</a>
-          <a href="/settings/routing" className="nav-item"><Shield size={17} /> Privacy Routing</a>
-          <a href="/models" className="nav-item"><Sliders size={17} /> Model Mesh</a>
-        </nav>
-      </aside>
+      {/* Luxury Enterprise Sidebar */}
+      <Sidebar onOpenCommandPalette={() => setShowCommandPalette(true)} />
 
       {/* Main Content */}
-      <main className="main-content">
+      <div className="main-content-wrapper">
         <Header 
           user={user} 
           onOpenAuth={() => setShowAuthModal(true)} 
           onOpenLLMSettings={() => setShowLLMModal(true)}
           onLogout={() => setUser(null)}
           onNewProject={() => window.location.href = '/'}
-          activeProjectTitle="Specialized Agent Team"
+          activeProjectTitle="16 Specialized Domain Agents"
+          onOpenCommandPalette={() => setShowCommandPalette(true)}
         />
 
-        <div className="dashboard-body">
-          <div className="hero-banner">
-            <div>
-              <div className="hero-tag">
-                <Sparkles size={14} /> 16 SPECIALIZED DOMAIN AI AGENTS
+        <div className="dashboard-content">
+          <div className="database-hero-banner">
+            <div className="db-banner-left">
+              <div className="db-badge">
+                <Sparkles size={16} className="text-violet-400" />
+                <span>16 DOMAIN-SPECIALIZED AUTONOMOUS AGENTS</span>
               </div>
-              <h1>Autonomous Engineering Agent Roster</h1>
-              <div className="muted">
-                Every engineering workstream (Data, AI/ML, Backend, Frontend, Testing, Security) is driven by a dedicated Pydantic-contract agent.
-              </div>
+              <h1 className="db-hero-title">Autonomous Engineering Agent Roster</h1>
+              <p className="db-hero-subtitle">
+                Every engineering workstream (Data, AI/ML, Backend, Frontend, Testing, Security) is driven by a dedicated Pydantic-contract agent wired to offline local models.
+              </p>
             </div>
           </div>
 
@@ -115,7 +113,12 @@ export default function AgentsPage() {
             })}
           </div>
         </div>
-      </main>
+      </div>
+
+      <CommandPalette 
+        isOpen={showCommandPalette} 
+        onClose={() => setShowCommandPalette(false)} 
+      />
 
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={() => {}} apiBase={API} />
       <LLMSettingsModal isOpen={showLLMModal} onClose={() => setShowLLMModal(false)} apiBase={API} />

@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Bot, Cpu, Server, Sliders, Shield, RefreshCw, Activity, CheckCircle2, AlertCircle, Plus } from 'lucide-react';
 import Header from '../../components/Header';
+import Sidebar from '../../components/Sidebar';
+import CommandPalette from '../../components/CommandPalette';
 import AuthModal from '../../components/AuthModal';
 import LLMSettingsModal from '../../components/LLMSettingsModal';
 import ThreeDBackgroundCanvas from '../../components/ThreeDBackgroundCanvas';
@@ -14,12 +16,21 @@ export default function ServersPage() {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLLMModal, setShowLLMModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
 
   const [servers, setServers] = useState<any[]>([]);
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     fetchServers();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   async function fetchServers() {
@@ -52,86 +63,77 @@ export default function ServersPage() {
       {/* 3D Background */}
       <ThreeDBackgroundCanvas />
 
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <Bot size={22} />
-          </div>
-          <div>
-            <div className="brand-title">HackForge AI</div>
-            <div className="brand-tag">Hybrid AI Infrastructure</div>
-          </div>
-        </div>
-
-        <nav className="nav-menu">
-          <a href="/" className="nav-item"><Cpu size={17} /> Workspace</a>
-          <a href="/agents" className="nav-item"><Bot size={17} /> Agent Team (16)</a>
-          <a href="/servers" className="nav-item active"><Server size={17} /> AI Server Control Center</a>
-          <a href="/settings/routing" className="nav-item"><Shield size={17} /> Routing & Privacy</a>
-          <a href="/models" className="nav-item"><Sliders size={17} /> Model Mesh</a>
-        </nav>
-      </aside>
+      {/* Luxury Enterprise Sidebar */}
+      <Sidebar onOpenCommandPalette={() => setShowCommandPalette(true)} />
 
       {/* Main Content */}
-      <main className="main-content">
+      <div className="main-content-wrapper">
         <Header 
           user={user} 
           onOpenAuth={() => setShowAuthModal(true)} 
           onOpenLLMSettings={() => setShowLLMModal(true)}
           onLogout={() => setUser(null)}
           onNewProject={() => window.location.href = '/'}
-          activeProjectTitle="AI Server Control Center"
+          activeProjectTitle="Distributed Inference Clusters"
+          onOpenCommandPalette={() => setShowCommandPalette(true)}
         />
 
-        <div className="dashboard-body">
-          <div className="hero-banner">
-            <div>
-              <div className="hero-tag">
-                <Activity size={14} /> HYBRID INFRASTRUCTURE CONTROL CENTER
+        <div className="dashboard-content">
+          <div className="database-hero-banner">
+            <div className="db-banner-left">
+              <div className="db-badge">
+                <Server size={16} className="text-cyan-400" />
+                <span>DISTRIBUTED AI INFERENCE CLUSTERS</span>
               </div>
-              <h1>AI Server Control Center</h1>
-              <div className="muted">
-                Manage local inference engines (Ollama, vLLM, llama.cpp), remote servers, and cloud APIs (OpenAI, Anthropic).
-              </div>
+              <h1 className="db-hero-title">AI Server Control Center</h1>
+              <p className="db-hero-subtitle">
+                Monitor live cluster nodes, local Ollama endpoints, GPU latency metrics, and network connection health in real time.
+              </p>
             </div>
 
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn btn-secondary" onClick={triggerScan} disabled={scanning}>
-                <RefreshCw size={16} className={scanning ? 'spin' : ''} /> {scanning ? 'Scanning Ports...' : 'Scan Local Ports'}
-              </button>
-              <button className="btn btn-primary" onClick={() => setShowLLMModal(true)}>
-                <Plus size={16} /> Add Custom Server
+            <div className="db-banner-right">
+              <button className="btn btn-secondary btn-sm" onClick={triggerScan} disabled={scanning}>
+                <RefreshCw size={14} className={scanning ? 'animate-spin' : ''} />
+                {scanning ? 'Discovering Nodes...' : 'Scan Local Network'}
               </button>
             </div>
           </div>
 
-          {/* Server Cards Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18, marginBottom: 28 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
             {servers.map((s) => {
               const isOnline = s.status === 'ONLINE';
               return (
-                <ThreeDCard key={s.provider}>
+                <ThreeDCard key={s.id || s.name}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                     <div>
-                      <div style={{ fontSize: 16, fontWeight: 700 }}>{s.provider}</div>
-                      <div className="muted" style={{ fontSize: 12 }}>{s.base_url}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700 }}>{s.name}</div>
+                      <div className="muted" style={{ fontSize: 11, fontFamily: 'monospace' }}>
+                        {s.base_url || 'Embedded Provider'}
+                      </div>
                     </div>
-                    <span className={`status-badge ${isOnline ? 'done' : 'failed'}`}>
-                      {isOnline ? <CheckCircle2 size={11} /> : <AlertCircle size={11} />}
+                    <span className={`status-badge ${isOnline ? 'done' : 'error'}`}>
+                      {isOnline ? <CheckCircle2 size={10} /> : <AlertCircle size={10} />}
                       {s.status}
                     </span>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, fontSize: 12 }}>
-                    <span className="muted">Provider Type: <strong>{s.type}</strong></span>
-                    <span className="muted">Latency: <strong>{s.latency_ms} ms</strong></span>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, margin: '14px 0', fontSize: 12 }}>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 10px', borderRadius: 8 }}>
+                      <span className="muted" style={{ display: 'block', fontSize: 10 }}>TYPE</span>
+                      <strong>{s.provider_type}</strong>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 10px', borderRadius: 8 }}>
+                      <span className="muted" style={{ display: 'block', fontSize: 10 }}>PING LATENCY</span>
+                      <strong style={{ color: s.latency_ms > 500 ? 'var(--accent-amber)' : 'var(--accent-emerald)' }}>
+                        {s.latency_ms ? `${s.latency_ms} ms` : 'Offline'}
+                      </strong>
+                    </div>
                   </div>
 
                   {s.models && s.models.length > 0 && (
                     <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 10 }}>
-                      <div className="muted" style={{ fontSize: 11, marginBottom: 6, fontWeight: 700 }}>
-                        MODELS DISCOVERED ({s.models.length})
+                      <div className="muted" style={{ fontSize: 10, fontWeight: 700, marginBottom: 6, letterSpacing: 0.5 }}>
+                        SERVED MODELS ({s.models.length})
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                         {s.models.map((m: any) => (
@@ -147,7 +149,12 @@ export default function ServersPage() {
             })}
           </div>
         </div>
-      </main>
+      </div>
+
+      <CommandPalette 
+        isOpen={showCommandPalette} 
+        onClose={() => setShowCommandPalette(false)} 
+      />
 
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={() => {}} apiBase={API} />
       <LLMSettingsModal isOpen={showLLMModal} onClose={() => setShowLLMModal(false)} apiBase={API} />

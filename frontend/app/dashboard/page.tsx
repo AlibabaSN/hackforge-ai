@@ -261,7 +261,7 @@ export default function DashboardPage() {
                           <td className="font-semibold text-white">{p.title}</td>
                           <td className="font-mono text-cyan-300 text-xs">{p.current_stage}</td>
                           <td>
-                            <span className={`status-pill ${p.status === 'COMPLETED' ? 'allowed' : 'pending'}`}>
+                            <span className={`status-pill ${p.status === 'READY' || p.status === 'COMPLETED' ? 'allowed' : p.status === 'RUNNING' ? 'pending' : p.status === 'FAILED' ? 'blocked' : 'allowed'}`}>
                               {p.status}
                             </span>
                           </td>
