@@ -70,18 +70,20 @@ docker compose up -d --build
 
 ---
 
-## 🐙 Push to Your GitHub
+## 🐙 GitHub Repository & Remote Setup
 
-To link and push this complete production codebase to your GitHub repository:
+This project is configured for **AlibabaSN** (`https://github.com/AlibabaSN/hackforge-ai`):
 
 ```bash
-# Set your GitHub remote repository (replace with your repo URL)
-git remote add origin https://github.com/<your-username>/hackforge-ai.git
+# 1. Create a new empty repository named 'hackforge-ai' at https://github.com/new
+#    (Do not check 'Add a README file' or '.gitignore' since they are already included)
 
-# Verify branch is set to main
-git branch -M main
+# 2. Remote origin is already configured:
+git remote -v
+# origin  https://github.com/AlibabaSN/hackforge-ai.git (fetch)
+# origin  https://github.com/AlibabaSN/hackforge-ai.git (push)
 
-# Push all source code, manifests, and documentation
+# 3. Push complete codebase to your GitHub:
 git push -u origin main
 ```
 
